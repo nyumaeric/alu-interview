@@ -1,44 +1,30 @@
-from time import sleep
-from random import randint
-import fcntl, termios, struct
+def rain(walls):
+  """
+  Calculates the total amount of rainwater retained in a cross-section of walls.
 
-def render():
-  print('\033[2J')
-  for r in data:
-    for c in r:
-      v = states[c] if c < len(states) else states[-1]
-      print(v,end='')
-    print('')
+  Args:
+    walls: A list of non-negative integers representing the heights of walls with unit width 1.
 
-def update():
-  for ir in range(len(data)-1,-1,-1):
-    for ic, c in enumerate(data[ir]):
-      if randint(1,1000) > 999:
-        data[ir][ic] += randint(1,3)
-      if c > 2:
-        data[ir][ic] -= c
-        if ir < len(data) -1:
-          data[ir+1][ic] += c
+  Returns:
+    An integer indicating the total amount of rainwater retained in square units.
+  """
+  # Check for empty list
+  if not walls:
+    return 0
 
-def terminal_size():
-    th, tw, hp, wp = struct.unpack('HHHH',
-        fcntl.ioctl(0, termios.TIOCGWINSZ,
-        struct.pack('HHHH', 0, 0, 0, 0)))
-    return tw, th
+  # Initialize variables
+  total_water = 0
+  current_max = 0
 
-width,height = terminal_size()
+  # Iterate through the wall heights
+  for height in walls:
+    # Calculate potential water accumulation based on current height and previous max
+    water_accumulation = min(height, current_max) - height
 
-data = []
-states = list(' .,:;|oO')
+    # Add accumulated water to total
+    total_water += water_accumulation
 
-for _ in range(height):
-  row = []
-  for __ in range(width):
-    row.append(0)
-  data.append(row)
+    # Update current max height
+    current_max = max(current_max, height)
 
-while True:
-  render()
-  update()
-  sleep(0.075)
-
+  return total_water
